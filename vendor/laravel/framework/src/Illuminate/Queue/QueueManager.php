@@ -24,6 +24,13 @@ class QueueManager implements FactoryContract, MonitorContract
     protected $connections = [];
 
     /**
+     * The array of resolved queue connectors.
+     *
+     * @var array
+     */
+    protected $connectors = [];
+
+    /**
      * Create a new queue manager instance.
      *
      * @param  \Illuminate\Foundation\Application  $app
@@ -32,6 +39,39 @@ class QueueManager implements FactoryContract, MonitorContract
     public function __construct($app)
     {
         $this->app = $app;
+    }
+
+    /**
+     * Register an event listener for the before job event.
+     *
+     * @param  mixed  $callback
+     * @return void
+     */
+    public function before($callback)
+    {
+        $this->app['events']->listen(Events\JobProcessing::class, $callback);
+    }
+
+    /**
+     * Register an event listener for the after job event.
+     *
+     * @param  mixed  $callback
+     * @return void
+     */
+    public function after($callback)
+    {
+        $this->app['events']->listen(Events\JobProcessed::class, $callback);
+    }
+
+    /**
+     * Register an event listener for the exception occurred job event.
+     *
+     * @param  mixed  $callback
+     * @return void
+     */
+    public function exceptionOccurred($callback)
+    {
+        $this->app['events']->listen(Events\JobExceptionOccurred::class, $callback);
     }
 
     /**
@@ -53,7 +93,7 @@ class QueueManager implements FactoryContract, MonitorContract
      */
     public function failing($callback)
     {
-        $this->app['events']->listen('illuminate.queue.failed', $callback);
+        $this->app['events']->listen(Events\JobFailed::class, $callback);
     }
 
     /**
@@ -64,7 +104,7 @@ class QueueManager implements FactoryContract, MonitorContract
      */
     public function stopping($callback)
     {
-        $this->app['events']->listen('illuminate.queue.stopping', $callback);
+        $this->app['events']->listen(Events\WorkerStopping::class, $callback);
     }
 
     /**
@@ -91,7 +131,7 @@ class QueueManager implements FactoryContract, MonitorContract
         // If the connection has not been resolved yet we will resolve it now as all
         // of the connections are resolved when they are actually needed so we do
         // not make any unnecessary connection to the various queue end-points.
-        if (!isset($this->connections[$name])) {
+        if (! isset($this->connections[$name])) {
             $this->connections[$name] = $this->resolve($name);
 
             $this->connections[$name]->setContainer($this->app);
@@ -164,6 +204,10 @@ class QueueManager implements FactoryContract, MonitorContract
      */
     protected function getConfig($name)
     {
+        if ($name === null || $name === 'null') {
+            return ['driver' => 'null'];
+        }
+
         return $this->app['config']["queue.connections.{$name}"];
     }
 

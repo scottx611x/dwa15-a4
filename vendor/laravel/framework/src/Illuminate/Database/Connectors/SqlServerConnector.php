@@ -3,6 +3,7 @@
 namespace Illuminate\Database\Connectors;
 
 use PDO;
+use Illuminate\Support\Arr;
 
 class SqlServerConnector extends Connector implements ConnectorInterface
 {
@@ -44,6 +45,8 @@ class SqlServerConnector extends Connector implements ConnectorInterface
         // need to establish the PDO connections and return them back for use.
         if (in_array('dblib', $this->getAvailableDrivers())) {
             return $this->getDblibDsn($config);
+        } elseif ($this->prefersOdbc($config)) {
+            return $this->getOdbcDsn($config);
         } else {
             return $this->getSqlSrvDsn($config);
         }
@@ -63,10 +66,37 @@ class SqlServerConnector extends Connector implements ConnectorInterface
         ];
 
         $arguments = array_merge(
-            $arguments, array_only($config, ['appname', 'charset'])
+            $arguments, Arr::only($config, ['appname', 'charset'])
         );
 
         return $this->buildConnectString('dblib', $arguments);
+    }
+
+    /**
+     * Determine if the database configuration prefers ODBC.
+     *
+     * @param  array  $config
+     * @return bool
+     */
+    protected function prefersOdbc(array $config)
+    {
+        return in_array('odbc', $this->getAvailableDrivers()) &&
+               array_get($config, 'odbc') === true;
+    }
+
+    /**
+     * Get the DSN string for an ODBC connection.
+     *
+     * @param  array  $config
+     * @return string
+     */
+    protected function getOdbcDsn(array $config)
+    {
+        if (isset($config['odbc_datasource_name'])) {
+            return 'odbc:'.$config['odbc_datasource_name'];
+        }
+
+        return '';
     }
 
     /**
@@ -87,6 +117,14 @@ class SqlServerConnector extends Connector implements ConnectorInterface
 
         if (isset($config['appname'])) {
             $arguments['APP'] = $config['appname'];
+        }
+
+        if (isset($config['readonly'])) {
+            $arguments['ApplicationIntent'] = 'ReadOnly';
+        }
+
+        if (isset($config['pooling']) && $config['pooling'] === false) {
+            $arguments['ConnectionPooling'] = '0';
         }
 
         return $this->buildConnectString('sqlsrv', $arguments);

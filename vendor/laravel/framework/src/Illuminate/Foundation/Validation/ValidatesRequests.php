@@ -4,11 +4,39 @@ namespace Illuminate\Foundation\Validation;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Routing\UrlGenerator;
+use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exception\HttpResponseException;
 
 trait ValidatesRequests
 {
+    /**
+     * The default error bag.
+     *
+     * @var string
+     */
+    protected $validatesRequestErrorBag;
+
+    /**
+     * Run the validation routine against the given validator.
+     *
+     * @param  \Illuminate\Contracts\Validation\Validator|array  $validator
+     * @param  \Illuminate\Http\Request|null  $request
+     * @return void
+     */
+    public function validateWith($validator, Request $request = null)
+    {
+        $request = $request ?: app('request');
+
+        if (is_array($validator)) {
+            $validator = $this->getValidationFactory()->make($request->all(), $validator);
+        }
+
+        if ($validator->fails()) {
+            $this->throwValidationException($request, $validator);
+        }
+    }
+
     /**
      * Validate the given request with the given rules.
      *
@@ -17,8 +45,6 @@ trait ValidatesRequests
      * @param  array  $messages
      * @param  array  $customAttributes
      * @return void
-     *
-     * @throws \Illuminate\Http\Exception\HttpResponseException
      */
     public function validate(Request $request, array $rules, array $messages = [], array $customAttributes = [])
     {
@@ -30,17 +56,36 @@ trait ValidatesRequests
     }
 
     /**
+     * Validate the given request with the given rules.
+     *
+     * @param  string  $errorBag
+     * @param  \Illuminate\Http\Request  $request
+     * @param  array  $rules
+     * @param  array  $messages
+     * @param  array  $customAttributes
+     * @return void
+     *
+     * @throws \Illuminate\Foundation\Validation\ValidationException
+     */
+    public function validateWithBag($errorBag, Request $request, array $rules, array $messages = [], array $customAttributes = [])
+    {
+        $this->withErrorBag($errorBag, function () use ($request, $rules, $messages, $customAttributes) {
+            $this->validate($request, $rules, $messages, $customAttributes);
+        });
+    }
+
+    /**
      * Throw the failed validation exception.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Illuminate\Contracts\Validation\Validator  $validator
      * @return void
      *
-     * @throws \Illuminate\Http\Exception\HttpResponseException
+     * @throws \Illuminate\Foundation\Validation\ValidationException
      */
     protected function throwValidationException(Request $request, $validator)
     {
-        throw new HttpResponseException($this->buildFailedValidationResponse(
+        throw new ValidationException($validator, $this->buildFailedValidationResponse(
             $request, $this->formatValidationErrors($validator)
         ));
     }
@@ -54,7 +99,7 @@ trait ValidatesRequests
      */
     protected function buildFailedValidationResponse(Request $request, array $errors)
     {
-        if ($request->ajax() || $request->wantsJson()) {
+        if (($request->ajax() && ! $request->pjax()) || $request->wantsJson()) {
             return new JsonResponse($errors, 422);
         }
 
@@ -81,7 +126,7 @@ trait ValidatesRequests
      */
     protected function getRedirectUrl()
     {
-        return app('Illuminate\Routing\UrlGenerator')->previous();
+        return app(UrlGenerator::class)->previous();
     }
 
     /**
@@ -91,7 +136,23 @@ trait ValidatesRequests
      */
     protected function getValidationFactory()
     {
-        return app('Illuminate\Contracts\Validation\Factory');
+        return app(Factory::class);
+    }
+
+    /**
+     * Execute a Closure within with a given error bag set as the default bag.
+     *
+     * @param  string  $errorBag
+     * @param  callable  $callback
+     * @return void
+     */
+    protected function withErrorBag($errorBag, callable $callback)
+    {
+        $this->validatesRequestErrorBag = $errorBag;
+
+        call_user_func($callback);
+
+        $this->validatesRequestErrorBag = null;
     }
 
     /**
@@ -101,6 +162,6 @@ trait ValidatesRequests
      */
     protected function errorBag()
     {
-        return 'default';
+        return $this->validatesRequestErrorBag ?: 'default';
     }
 }

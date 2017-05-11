@@ -2,7 +2,8 @@
 
 namespace Illuminate\Database\Eloquent;
 
-use Faker\Factory as Faker;
+use Closure;
+use Faker\Generator as Faker;
 use InvalidArgumentException;
 
 class FactoryBuilder
@@ -48,13 +49,14 @@ class FactoryBuilder
      * @param  string  $class
      * @param  string  $name
      * @param  array  $definitions
+     * @param  \Faker\Generator  $faker
      * @return void
      */
-    public function __construct($class, $name, array $definitions)
+    public function __construct($class, $name, array $definitions, Faker $faker)
     {
         $this->name = $name;
         $this->class = $class;
-        $this->faker = Faker::create();
+        $this->faker = $faker;
         $this->definitions = $definitions;
     }
 
@@ -118,17 +120,42 @@ class FactoryBuilder
      *
      * @param  array  $attributes
      * @return \Illuminate\Database\Eloquent\Model
+     *
+     * @throws \InvalidArgumentException
      */
     protected function makeInstance(array $attributes = [])
     {
         return Model::unguarded(function () use ($attributes) {
-            if (!isset($this->definitions[$this->class][$this->name])) {
-                throw new InvalidArgumentException("Unable to locate factory with name [{$this->name}].");
+            if (! isset($this->definitions[$this->class][$this->name])) {
+                throw new InvalidArgumentException("Unable to locate factory with name [{$this->name}] [{$this->class}].");
             }
 
-            $definition = call_user_func($this->definitions[$this->class][$this->name], $this->faker);
+            $definition = call_user_func(
+                $this->definitions[$this->class][$this->name],
+                $this->faker, $attributes
+            );
 
-            return new $this->class(array_merge($definition, $attributes));
+            $evaluated = $this->callClosureAttributes(
+                array_merge($definition, $attributes)
+            );
+
+            return new $this->class($evaluated);
         });
+    }
+
+    /**
+     * Evaluate any Closure attributes on the attribute array.
+     *
+     * @param  array  $attributes
+     * @return array
+     */
+    protected function callClosureAttributes(array $attributes)
+    {
+        foreach ($attributes as &$attribute) {
+            $attribute = $attribute instanceof Closure
+                            ? $attribute($attributes) : $attribute;
+        }
+
+        return $attributes;
     }
 }

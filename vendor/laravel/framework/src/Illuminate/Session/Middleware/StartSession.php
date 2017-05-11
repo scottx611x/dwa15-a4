@@ -4,6 +4,7 @@ namespace Illuminate\Session\Middleware;
 
 use Closure;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Session\SessionManager;
 use Illuminate\Session\SessionInterface;
@@ -56,6 +57,8 @@ class StartSession
             $session = $this->startSession($request);
 
             $request->setSession($session);
+
+            $this->collectGarbage($session);
         }
 
         $response = $next($request);
@@ -65,8 +68,6 @@ class StartSession
         // add the session identifier cookie to the application response headers now.
         if ($this->sessionConfigured()) {
             $this->storeCurrentUrl($request, $session);
-
-            $this->collectGarbage($session);
 
             $this->addCookieToResponse($response, $session);
         }
@@ -83,7 +84,7 @@ class StartSession
      */
     public function terminate($request, $response)
     {
-        if ($this->sessionHandled && $this->sessionConfigured() && !$this->usingCookieSessions()) {
+        if ($this->sessionHandled && $this->sessionConfigured() && ! $this->usingCookieSessions()) {
             $this->manager->driver()->save();
         }
     }
@@ -96,7 +97,9 @@ class StartSession
      */
     protected function startSession(Request $request)
     {
-        with($session = $this->getSession($request))->setRequestOnHandler($request);
+        $session = $this->getSession($request);
+
+        $session->setRequestOnHandler($request);
 
         $session->start();
 
@@ -127,7 +130,7 @@ class StartSession
      */
     protected function storeCurrentUrl(Request $request, $session)
     {
-        if ($request->method() === 'GET' && $request->route() && !$request->ajax()) {
+        if ($request->method() === 'GET' && $request->route() && ! $request->ajax()) {
             $session->setPreviousUrl($request->fullUrl());
         }
     }
@@ -158,7 +161,7 @@ class StartSession
      */
     protected function configHitsLottery(array $config)
     {
-        return mt_rand(1, $config['lottery'][1]) <= $config['lottery'][0];
+        return random_int(1, $config['lottery'][1]) <= $config['lottery'][0];
     }
 
     /**
@@ -177,7 +180,8 @@ class StartSession
         if ($this->sessionIsPersistent($config = $this->manager->getSessionConfig())) {
             $response->headers->setCookie(new Cookie(
                 $session->getName(), $session->getId(), $this->getCookieExpirationDate(),
-                $config['path'], $config['domain'], array_get($config, 'secure', false)
+                $config['path'], $config['domain'], Arr::get($config, 'secure', false),
+                Arr::get($config, 'http_only', true)
             ));
         }
     }
@@ -189,7 +193,7 @@ class StartSession
      */
     protected function getSessionLifetimeInSeconds()
     {
-        return array_get($this->manager->getSessionConfig(), 'lifetime') * 60;
+        return Arr::get($this->manager->getSessionConfig(), 'lifetime') * 60;
     }
 
     /**
@@ -211,7 +215,7 @@ class StartSession
      */
     protected function sessionConfigured()
     {
-        return !is_null(array_get($this->manager->getSessionConfig(), 'driver'));
+        return ! is_null(Arr::get($this->manager->getSessionConfig(), 'driver'));
     }
 
     /**
@@ -224,7 +228,7 @@ class StartSession
     {
         $config = $config ?: $this->manager->getSessionConfig();
 
-        return !in_array($config['driver'], [null, 'array']);
+        return ! in_array($config['driver'], [null, 'array']);
     }
 
     /**
@@ -234,7 +238,7 @@ class StartSession
      */
     protected function usingCookieSessions()
     {
-        if (!$this->sessionConfigured()) {
+        if (! $this->sessionConfigured()) {
             return false;
         }
 

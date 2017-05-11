@@ -3,6 +3,8 @@
 namespace Illuminate\Database\Migrations;
 
 use Closure;
+use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Illuminate\Filesystem\Filesystem;
 
 class MigrationCreator
@@ -40,9 +42,12 @@ class MigrationCreator
      * @param  string  $table
      * @param  bool    $create
      * @return string
+     * @throws \Exception
      */
     public function create($name, $path, $table = null, $create = false)
     {
+        $this->ensureMigrationDoesntAlreadyExist($name);
+
         $path = $this->getPath($name, $path);
 
         // First we will get the stub file for the migration, which serves as a type
@@ -55,6 +60,21 @@ class MigrationCreator
         $this->firePostCreateHooks();
 
         return $path;
+    }
+
+    /**
+     * Ensure that a migration with the given name doesn't already exist.
+     *
+     * @param  string  $name
+     * @return void
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function ensureMigrationDoesntAlreadyExist($name)
+    {
+        if (class_exists($className = $this->getClassName($name))) {
+            throw new InvalidArgumentException("A $className migration already exists.");
+        }
     }
 
     /**
@@ -95,7 +115,7 @@ class MigrationCreator
         // Here we will replace the table place-holders with the table specified by
         // the developer, which is useful for quickly creating a tables creation
         // or update migration from the console instead of typing it manually.
-        if (!is_null($table)) {
+        if (! is_null($table)) {
             $stub = str_replace('DummyTable', $table, $stub);
         }
 
@@ -110,7 +130,7 @@ class MigrationCreator
      */
     protected function getClassName($name)
     {
-        return studly_case($name);
+        return Str::studly($name);
     }
 
     /**

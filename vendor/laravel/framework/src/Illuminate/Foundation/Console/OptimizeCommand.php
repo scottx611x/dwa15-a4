@@ -2,10 +2,11 @@
 
 namespace Illuminate\Foundation\Console;
 
+use ClassPreloader\Factory;
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Composer;
-use ClassPreloader\Command\PreCompileCommand;
+use Illuminate\Support\Composer;
 use Symfony\Component\Console\Input\InputOption;
+use ClassPreloader\Exceptions\VisitorExceptionInterface;
 
 class OptimizeCommand extends Command
 {
@@ -26,14 +27,14 @@ class OptimizeCommand extends Command
     /**
      * The composer instance.
      *
-     * @var \Illuminate\Foundation\Composer
+     * @var \Illuminate\Support\Composer
      */
     protected $composer;
 
     /**
      * Create a new optimize command instance.
      *
-     * @param  \Illuminate\Foundation\Composer  $composer
+     * @param  \Illuminate\Support\Composer  $composer
      * @return void
      */
     public function __construct(Composer $composer)
@@ -58,9 +59,8 @@ class OptimizeCommand extends Command
             $this->composer->dumpOptimized();
         }
 
-        if ($this->option('force') || !$this->laravel['config']['app.debug']) {
+        if ($this->option('force') || ! $this->laravel['config']['app.debug']) {
             $this->info('Compiling common classes');
-
             $this->compileClasses();
         } else {
             $this->call('clear-compiled');
@@ -74,13 +74,19 @@ class OptimizeCommand extends Command
      */
     protected function compileClasses()
     {
-        $this->registerClassPreloaderCommand();
+        $preloader = (new Factory)->create(['skip' => true]);
 
-        $this->callSilent('compile', [
-            '--config' => implode(',', $this->getClassFiles()),
-            '--output' => $this->laravel->getCachedCompilePath(),
-            '--strip_comments' => 1,
-        ]);
+        $handle = $preloader->prepareOutput($this->laravel->getCachedCompilePath());
+
+        foreach ($this->getClassFiles() as $file) {
+            try {
+                fwrite($handle, $preloader->getCode($file, false)."\n");
+            } catch (VisitorExceptionInterface $e) {
+                //
+            }
+        }
+
+        fclose($handle);
     }
 
     /**
@@ -94,23 +100,13 @@ class OptimizeCommand extends Command
 
         $core = require __DIR__.'/Optimize/config.php';
 
-        $files = array_merge($core, $this->laravel['config']->get('compile.files', []));
+        $files = array_merge($core, $app['config']->get('compile.files', []));
 
-        foreach ($this->laravel['config']->get('compile.providers', []) as $provider) {
+        foreach ($app['config']->get('compile.providers', []) as $provider) {
             $files = array_merge($files, forward_static_call([$provider, 'compiles']));
         }
 
-        return $files;
-    }
-
-    /**
-     * Register the pre-compiler command instance with Artisan.
-     *
-     * @return void
-     */
-    protected function registerClassPreloaderCommand()
-    {
-        $this->getApplication()->add(new PreCompileCommand);
+        return array_map('realpath', $files);
     }
 
     /**

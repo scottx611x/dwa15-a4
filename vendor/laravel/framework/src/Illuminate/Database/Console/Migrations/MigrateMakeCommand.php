@@ -2,19 +2,20 @@
 
 namespace Illuminate\Database\Console\Migrations;
 
-use Illuminate\Foundation\Composer;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
+use Illuminate\Support\Composer;
 use Illuminate\Database\Migrations\MigrationCreator;
 
 class MigrateMakeCommand extends BaseCommand
 {
     /**
-     * The console command name.
+     * The console command signature.
      *
      * @var string
      */
-    protected $name = 'make:migration';
+    protected $signature = 'make:migration {name : The name of the migration.}
+        {--create= : The table to be created.}
+        {--table= : The table to migrate.}
+        {--path= : The location where the migration file should be created.}';
 
     /**
      * The console command description.
@@ -33,7 +34,7 @@ class MigrateMakeCommand extends BaseCommand
     /**
      * The Composer instance.
      *
-     * @var \Illuminate\Foundation\Composer
+     * @var \Illuminate\Support\Composer
      */
     protected $composer;
 
@@ -41,7 +42,7 @@ class MigrateMakeCommand extends BaseCommand
      * Create a new migration install command instance.
      *
      * @param  \Illuminate\Database\Migrations\MigrationCreator  $creator
-     * @param  \Illuminate\Foundation\Composer  $composer
+     * @param  \Illuminate\Support\Composer  $composer
      * @return void
      */
     public function __construct(MigrationCreator $creator, Composer $composer)
@@ -62,14 +63,16 @@ class MigrateMakeCommand extends BaseCommand
         // It's possible for the developer to specify the tables to modify in this
         // schema operation. The developer may also specify if this table needs
         // to be freshly created so we can create the appropriate migrations.
-        $name = $this->input->getArgument('name');
+        $name = trim($this->input->getArgument('name'));
 
         $table = $this->input->getOption('table');
 
-        $create = $this->input->getOption('create');
+        $create = $this->input->getOption('create') ?: false;
 
-        if (!$table && is_string($create)) {
+        if (! $table && is_string($create)) {
             $table = $create;
+
+            $create = true;
         }
 
         // Now we are ready to write the migration out to disk. Once we've written
@@ -98,28 +101,16 @@ class MigrateMakeCommand extends BaseCommand
     }
 
     /**
-     * Get the console command arguments.
+     * Get migration path (either specified by '--path' option or default location).
      *
-     * @return array
+     * @return string
      */
-    protected function getArguments()
+    protected function getMigrationPath()
     {
-        return [
-            ['name', InputArgument::REQUIRED, 'The name of the migration'],
-        ];
-    }
+        if (! is_null($targetPath = $this->input->getOption('path'))) {
+            return $this->laravel->basePath().'/'.$targetPath;
+        }
 
-    /**
-     * Get the console command options.
-     *
-     * @return array
-     */
-    protected function getOptions()
-    {
-        return [
-            ['create', null, InputOption::VALUE_OPTIONAL, 'The table to be created.'],
-
-            ['table', null, InputOption::VALUE_OPTIONAL, 'The table to migrate.'],
-        ];
+        return parent::getMigrationPath();
     }
 }

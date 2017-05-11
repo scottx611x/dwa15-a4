@@ -2,6 +2,7 @@
 
 namespace Illuminate\Database\Eloquent\Relations;
 
+use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -71,11 +72,12 @@ class MorphToMany extends BelongsToMany
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @param  \Illuminate\Database\Eloquent\Builder  $parent
+     * @param  array|mixed  $columns
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function getRelationCountQuery(Builder $query, Builder $parent)
+    public function getRelationQuery(Builder $query, Builder $parent, $columns = ['*'])
     {
-        $query = parent::getRelationCountQuery($query, $parent);
+        $query = parent::getRelationQuery($query, $parent, $columns);
 
         return $query->where($this->table.'.'.$this->morphType, $this->morphClass);
     }
@@ -104,7 +106,7 @@ class MorphToMany extends BelongsToMany
     {
         $record = parent::createAttachRecord($id, $timed);
 
-        return array_add($record, $this->morphType, $this->morphClass);
+        return Arr::add($record, $this->morphType, $this->morphClass);
     }
 
     /**
