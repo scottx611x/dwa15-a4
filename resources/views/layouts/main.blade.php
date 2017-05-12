@@ -1,6 +1,11 @@
-@extends('base')
 
-@section('main')
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link href="{{ asset('/css/styles.css') }}" rel="stylesheet">
+    <script src="{{ asset('/js/get.js') }}"></script>
+
     <div class="container">
         <h1>xkcd password generator</h1>
         <a href="https://xkcd.com/936/">
@@ -47,7 +52,6 @@
         </div>
     </div>
 
-
     <div id="generated-error" class="modal fade alert-danger error-display">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -57,4 +61,3 @@
         <div id="error-container" class="modal-body">
         </div>
     </div>
-@endsection

@@ -14,25 +14,29 @@
 use App\XKCDPassword;
 use Illuminate\Http\Request;
 
-Route::get('/', 'MainController@index');
+Auth::routes();
+
+Route::get('/', function () {
+        return redirect('/home');
+    }
+);
+
+Route::get('/home', 'HomeController@index');
+
 Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 
-
-///**
-// * Display All XKCDPasswords
-// */
-//Route::get('/', function () {
-//    //
-//});
+/**
+ * Display all XKCDPasswords
+ */
+Route::get('/xkcdpasswords', 'XkcdPasswordController@index');
 
 /**
- * Add A New XKCDPassword
+ * Add a new XKCDPassword
  */
-Route::get('/xkcdpassword', 'MainController@generatePassword');
+Route::get('/xkcdpassword', 'XkcdPasswordController@store');
 
 /**
- * Delete An Existing Task
+ * Delete a XKCDPassword
  */
-Route::delete('/xkcdpassword/{id}', function ($id) {
-    //
-});
+Route::delete('/xkcdpassword/{xkcdpassword}', 'XkcdPasswordController@destroy');
+

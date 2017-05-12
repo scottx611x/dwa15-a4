@@ -15,6 +15,7 @@ class CreateXkcdpasswordsTable extends Migration
     {
         Schema::create('xkcdpasswords', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('user_id')->unsigned()->index();
             $table->string('password');
             $table->timestamps();
         });

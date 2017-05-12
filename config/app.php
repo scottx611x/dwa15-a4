@@ -124,6 +124,7 @@ return [
 		'Illuminate\Encryption\EncryptionServiceProvider',
 		'Illuminate\Filesystem\FilesystemServiceProvider',
 		'Illuminate\Foundation\Providers\FoundationServiceProvider',
+		'Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers',
 		'Illuminate\Hashing\HashServiceProvider',
         'Illuminate\Mail\MailServiceProvider',
 		'Illuminate\Pagination\PaginationServiceProvider',

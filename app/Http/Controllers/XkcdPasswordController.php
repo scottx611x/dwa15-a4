@@ -4,22 +4,32 @@ use App\XKCDPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class MainController extends Controller {
+class XkcdPasswordController extends Controller {
 
+    /**
+     * Delete an XKCDPassword
+     */
+    public function destroy(Request $request)
+    {
+        XKCDPassword::findOrFail($request->xkcdpassword)->delete();
 
-	/**
-	 * Show the main app content to the user.
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
-		return view('main');
-	}
+        return redirect('/xkcdpasswords');
+    }
+    /**
+     * List all XKCDPasswords
+     */
+    public function index(Request $request)
+    {
+        $xkcdpasswords = XKCDPassword::where('user_id', $request->user()->id)->orderBy('created_at', 'asc')->get();
+
+        return view('xkcdpasswords', [
+            'xkcdpasswords' => $xkcdpasswords
+        ]);
+    }
     /**
      * Generate a password based off the guidelines of an xkcd comic
      */
-	public function generatePassword(Request $request)
+	public function store(Request $request)
     {
         $v = Validator::make($request->all(),
             [
@@ -75,9 +85,9 @@ class PasswordGen {
         if ($data['symbolIncludeChecked'] == "true") {
             $pass = $pass . $data['symbolIncluded'];
         }
-        $xkcd_password = new XKCDPassword;
-        $xkcd_password->password = $pass;
-        $xkcd_password->save();
+        $data->user()->xkcdpasswords()->create([
+            'password' => $pass,
+        ]);
 
         echo $pass;
     }
