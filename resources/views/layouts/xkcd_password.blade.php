@@ -5,7 +5,7 @@
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                {{ $xkcdpassword->user->name }}'s XkcdPassword
+                <b>{{ $xkcdpassword->user->name }}'s XkcdPassword </b>
             </div>
 
             <div class="panel-body">
@@ -22,20 +22,17 @@
                         <tr>
                             <!-- Password -->
                             <td class="table-text">
-                                <div>{{ $xkcdpassword->password }}</div>
+                                <form action="/xkcdpassword/{{ $xkcdpassword->id }}" method="POST">
+                                    <input id="password_edit" type="text" name="updated_password" value="{{ $xkcdpassword->password }}"/>
+                                    {{ csrf_field() }}
+                                    {{ method_field('PUT') }}
+                                    <button>Update</button>
+                                </form>
+
                             </td>
                             <!-- Created At -->
                             <td class="table-text">
                                 <div>{{ $xkcdpassword->created_at }}</div>
-                            </td>
-
-                            <!-- View Password -->
-                            <td>
-                                <form action="/xkcdpassword/{{ $xkcdpassword->id }}" method="POST">
-                                    {{ csrf_field() }}
-                                    {{ method_field('GET') }}
-                                    <button>View</button>
-                                </form>
                             </td>
                             <!-- Delete Password -->
                             <td>

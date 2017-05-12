@@ -5,7 +5,7 @@
     @if (count($xkcdpasswords) > 0)
         <div class="panel panel-default">
             <div class="panel-heading">
-                {{ $xkcdpasswords[0]->user->name }}'s XkcdPasswords
+                <b>{{ $xkcdpasswords[0]->user->name }}'s {{count($xkcdpasswords)}} XkcdPasswords</b>
             </div>
 
             <div class="panel-body">

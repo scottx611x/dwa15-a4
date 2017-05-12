@@ -2,22 +2,23 @@
 
 @section('xkcd_create')
 
-    <div class="container">
-        <a href="https://xkcd.com/936/">
-            <img class="xkcd-img" src="https://imgs.xkcd.com/comics/password_strength.png"/>
-        </a>
+    <div align="center" class="container">
+
         <br><br>
         <div class="inputs form-group">
-            <label>Number of words for password generation <br><input type="number" id='numWords'/></label>
+            <label>Number of words for password generation <br><input type="number" class="form-input" id='numWords'/></label>
             <br>
             <label>
                 Include a number: <input id='numIncludeChecked' type="checkbox" data-toggle="switch" value="true"/>
 
                 <div id="number-input">
                     <label>Number to include in password:</label>
-                    <input type="number" id='numIncluded' value="0"/>
+                    <input class="form-input" type="number" id='numIncluded' value="0"/>
                 </div>
             </label>
+            <br>
+            <br>
+            <br>
             <label>
                 Include a symbol: <input id='symbolIncludeChecked' type="checkbox" data-toggle="switch" value="true"/>
 

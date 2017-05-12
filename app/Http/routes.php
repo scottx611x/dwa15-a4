@@ -49,3 +49,8 @@ Route::delete('/xkcdpassword/{xkcdpassword}', 'XkcdPasswordController@destroy');
  * Display a single XKCDPassword
  */
 Route::get('/xkcdpassword/{xkcdpassword}', 'XkcdPasswordController@show_one');
+
+/**
+ * Update a single XKCDPassword
+ */
+Route::put('/xkcdpassword/{xkcdpassword}', 'XkcdPasswordController@update');

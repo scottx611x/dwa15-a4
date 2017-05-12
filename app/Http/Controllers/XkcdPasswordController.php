@@ -20,7 +20,7 @@ class XkcdPasswordController extends Controller {
      */
     public function show(Request $request)
     {
-        $xkcdpasswords = XKCDPassword::where('user_id', $request->user()->id)->orderBy('created_at', 'asc')->get();
+        $xkcdpasswords = XKCDPassword::where('user_id', $request->user()->id)->orderBy('created_at', 'desc')->get();
 
         return view('layouts.xkcd_passwords', [
             'xkcdpasswords' => $xkcdpasswords
@@ -32,6 +32,20 @@ class XkcdPasswordController extends Controller {
     public function show_one(Request $request)
     {
         $xkcdpassword = XKCDPassword::findOrFail($request->xkcdpassword);
+
+        return view('layouts.xkcd_password', [
+            'xkcdpassword' => $xkcdpassword
+        ]);
+    }
+    /**
+     * Update one XKCDPassword
+     */
+    public function update(Request $request)
+    {
+        $xkcdpassword = XKCDPassword::findOrFail($request->xkcdpassword);
+
+        $xkcdpassword->password = $_POST["updated_password"];
+        $xkcdpassword->save();
 
         return view('layouts.xkcd_password', [
             'xkcdpassword' => $xkcdpassword

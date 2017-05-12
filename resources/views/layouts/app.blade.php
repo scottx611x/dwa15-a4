@@ -80,10 +80,12 @@
                 </div>
             </div>
         </nav>
+        <br><br>
     </div>
+    @yield('info')
+    @yield('content')
     @yield('xkcd_create')
     @yield('xkcd_list')
     @yield('xkcd_single')
-    @yield('content')
 </body>
 </html>
