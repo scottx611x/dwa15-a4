@@ -11,8 +11,6 @@
 |
 */
 
-use App\XKCDPassword;
-use Illuminate\Http\Request;
 
 Auth::routes();
 

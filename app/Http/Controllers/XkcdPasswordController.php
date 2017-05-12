@@ -6,6 +6,11 @@ use Illuminate\Support\Facades\Validator;
 
 class XkcdPasswordController extends Controller {
 
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
      * Delete an XKCDPassword
      */
