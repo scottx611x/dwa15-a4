@@ -18,18 +18,33 @@ class XkcdPasswordController extends Controller {
     /**
      * List all XKCDPasswords
      */
-    public function index(Request $request)
+    public function show(Request $request)
     {
         $xkcdpasswords = XKCDPassword::where('user_id', $request->user()->id)->orderBy('created_at', 'asc')->get();
 
-        return view('xkcdpasswords', [
+        return view('layouts.xkcd_passwords', [
             'xkcdpasswords' => $xkcdpasswords
         ]);
     }
     /**
+     * List one XKCDPassword
+     */
+    public function show_one(Request $request)
+    {
+        $xkcdpassword = XKCDPassword::findOrFail($request->xkcdpassword);
+
+        return view('layouts.xkcd_password', [
+            'xkcdpassword' => $xkcdpassword
+        ]);
+    }
+    public function main(Request $request)
+    {
+        return view('layouts.xkcd_generator');
+    }
+    /**
      * Generate a password based off the guidelines of an xkcd comic
      */
-	public function store(Request $request)
+	public function create(Request $request)
     {
         $v = Validator::make($request->all(),
             [

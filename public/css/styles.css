@@ -37,6 +37,7 @@ label {
     height: 250px;
     margin: auto;
     position: absolute;
+    z-index: 99999;
     top: 0;
     left: 0;
     bottom: 0;
@@ -46,14 +47,7 @@ label {
     overflow: auto;
     border-radius: 25px;
 }
-.container {
-    height: 100%;
-    margin: auto;
-    position: absolute;
-    top: 0; left: 0; bottom: 0; right: 0;
-    text-align: center;
-    max-width: 33%;
-}
+
 .xkcd-img {
 	height: 350px;
 	width:350px;

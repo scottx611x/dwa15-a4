@@ -1,11 +1,11 @@
-@extends('app')
+@extends('layouts.app')
 
-@section('xkcdpasswords')
+@section('xkcd_list')
 
     @if (count($xkcdpasswords) > 0)
         <div class="panel panel-default">
             <div class="panel-heading">
-                Current XkcdPasswords
+                {{ $xkcdpasswords[0]->user->name }}'s XkcdPasswords
             </div>
 
             <div class="panel-body">
@@ -14,7 +14,7 @@
                     <!-- Table Headings -->
                     <thead>
                     <th>XkcdPasswords</th>
-                    <th>&nbsp;</th>
+                    <th>Created At</th>
                     </thead>
 
                     <!-- Table Body -->
@@ -29,12 +29,20 @@
                             <td class="table-text">
                                 <div>{{ $xkcdpassword->created_at }}</div>
                             </td>
+                            <!-- View Password -->
+                            <td>
+                                <form action="/xkcdpassword/{{ $xkcdpassword->id }}" method="POST">
+                                    {{ csrf_field() }}
+                                    {{ method_field('GET') }}
+                                    <button>View</button>
+                                </form>
+                            </td>
                             <!-- Delete Password -->
                             <td>
                                 <form action="/xkcdpassword/{{ $xkcdpassword->id }}" method="POST">
                                     {{ csrf_field() }}
                                     {{ method_field('DELETE') }}
-                                    <button>Delete Password</button>
+                                    <button>Delete</button>
                                 </form>
                             </td>
                         </tr>

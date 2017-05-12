@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link href="{{ asset('/css/styles.css') }}" rel="stylesheet">
+    <script src="{{ asset('/js/get.js') }}"></script>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
 <body>
@@ -39,7 +41,12 @@
                 <div class="collapse navbar-collapse" id="app-navbar-collapse">
                     <!-- Left Side Of Navbar -->
                     <ul class="nav navbar-nav">
+                        @if (Auth::guest())
 
+                        @else
+                            <li><a href="/xkcdpassword">Create Xkcd Password</a></li>
+                            <li><a href="/xkcdpasswords">List All of your Xkcd Passwords</a></li>
+                        @endif
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -74,7 +81,9 @@
             </div>
         </nav>
     </div>
-    @include('layouts.main')
-    @yield('xkcdpasswords')
+    @yield('xkcd_create')
+    @yield('xkcd_list')
+    @yield('xkcd_single')
+    @yield('content')
 </body>
 </html>

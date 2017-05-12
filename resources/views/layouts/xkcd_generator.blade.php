@@ -1,13 +1,8 @@
+@extends('layouts.app')
 
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <link href="{{ asset('/css/styles.css') }}" rel="stylesheet">
-    <script src="{{ asset('/js/get.js') }}"></script>
+@section('xkcd_create')
 
     <div class="container">
-        <h1>xkcd password generator</h1>
         <a href="https://xkcd.com/936/">
             <img class="xkcd-img" src="https://imgs.xkcd.com/comics/password_strength.png"/>
         </a>
@@ -61,3 +56,4 @@
         <div id="error-container" class="modal-body">
         </div>
     </div>
+@endsection

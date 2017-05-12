@@ -25,7 +25,7 @@ $(document).ready(function(){
             symbolIncluded: symbolIncluded
         };
 
-        $.get("/xkcdpassword", payload
+        $.get("/new-xkcdpassword", payload
         ).done(function(data) {
             try {
                 var errorObj = eval("(" + data + ")");

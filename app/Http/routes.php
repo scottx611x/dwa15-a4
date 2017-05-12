@@ -28,15 +28,24 @@ Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 /**
  * Display all XKCDPasswords
  */
-Route::get('/xkcdpasswords', 'XkcdPasswordController@index');
+Route::get('/xkcdpasswords', 'XkcdPasswordController@show');
 
 /**
- * Add a new XKCDPassword
+ * Main password creation
  */
-Route::get('/xkcdpassword', 'XkcdPasswordController@store');
+Route::get('/xkcdpassword', 'XkcdPasswordController@main');
+
+/**
+ * Generate/Validate xkcd password
+ */
+Route::get('/new-xkcdpassword', 'XkcdPasswordController@create');
 
 /**
  * Delete a XKCDPassword
  */
 Route::delete('/xkcdpassword/{xkcdpassword}', 'XkcdPasswordController@destroy');
 
+/**
+ * Display a single XKCDPassword
+ */
+Route::get('/xkcdpassword/{xkcdpassword}', 'XkcdPasswordController@show_one');
