@@ -3,6 +3,7 @@ Post form data directly to our php class
  */
 
 $(document).ready(function(){
+
     $("#submit").click(function(e){
 
         // Prevent default form submission behavior of a page reload
@@ -24,7 +25,7 @@ $(document).ready(function(){
             symbolIncluded: symbolIncluded
         };
 
-        $.get("/generatePassword", payload
+        $.get("/xkcdpassword", payload
         ).done(function(data) {
             try {
                 var errorObj = eval("(" + data + ")");

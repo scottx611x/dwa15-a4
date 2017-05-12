@@ -11,6 +11,28 @@
 |
 */
 
+use App\XKCDPassword;
+use Illuminate\Http\Request;
+
 Route::get('/', 'MainController@index');
-Route::get('/generatePassword', 'MainController@generatePassword');
 Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
+
+
+///**
+// * Display All XKCDPasswords
+// */
+//Route::get('/', function () {
+//    //
+//});
+
+/**
+ * Add A New XKCDPassword
+ */
+Route::get('/xkcdpassword', 'MainController@generatePassword');
+
+/**
+ * Delete An Existing Task
+ */
+Route::delete('/xkcdpassword/{id}', function ($id) {
+    //
+});

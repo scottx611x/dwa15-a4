@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\XKCDPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -67,13 +68,17 @@ class PasswordGen {
                 $this->base_pass = $this->base_pass . "-" . $this->words[$rand_key];
             }
         }
-        $password = $this->base_pass;
+        $pass = $this->base_pass;
         if ($data['numIncludeChecked'] == "true") {
-            $password = $password . $data['numIncluded'];
+            $pass = $pass . $data['numIncluded'];
         }
         if ($data['symbolIncludeChecked'] == "true") {
-            $password = $password . $data['symbolIncluded'];
+            $pass = $pass . $data['symbolIncluded'];
         }
-        echo $password;
+        $xkcd_password = new XKCDPassword;
+        $xkcd_password->password = $pass;
+        $xkcd_password->save();
+
+        echo $pass;
     }
 } # eoc
